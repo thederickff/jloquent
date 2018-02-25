@@ -28,6 +28,7 @@ dist/
 nbdist/
 nbactions.xml
 nb-configuration.xml
+build.xml
 
 # External tool builders
 .externalToolBuilders/
