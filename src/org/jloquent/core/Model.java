@@ -45,7 +45,7 @@ public abstract class Model {
      * in plural, e.g. a model <code>class Person extends Model</code> will have
      * all of its fields persisted into a table called <code>persons</code>.
      */
-    public void create() {
+    public void save() {
         Method[] mt = this.getClass().getDeclaredMethods();
         List<Field> fields = ObjectUtility.getFields(mt, this);
 
@@ -133,28 +133,58 @@ public abstract class Model {
         Database.execute(sql);
     }
 
-    public void find(int id) {
-        throw new UnsupportedOperationException();
-    }
-
     public static void create(Model model) {
-        model.create();
+        model.save();
     }
 
     public static void update(Model model) {
         model.update();
     }
+    
+    public static <M extends Model> M find(int id, Supplier<M> constructor) {
+        M instance = constructor.get();
+        Method[] methods = instance.getClass().getDeclaredMethods();
+        List<Method> setters = new ArrayList<>();
+        List<Field> fields = ObjectUtility.getFields(methods, instance);
+        
+        for (Method m : methods) {
+            if (m.getName().contains("set")) {
+                setters.add(m);
+            }
+        }
+        
+        String sql = "SELECT * FROM `" + ObjectUtility.tableOf(instance) + "` where `id` =" + id;
+        
+        try {
+            ResultSet rs = Database.executeQuery(sql);
+
+            while (rs.next()) {
+                for (int i = 0; i < setters.size(); i++) {
+                    Method tempMethod = setters.get(i);
+                    for (int j = 0; j < fields.size(); j++) {
+                        Field tempField = fields.get(j);
+                        if (tempMethod.getName().toLowerCase().contains(tempField.getName())) {
+                            tempMethod.invoke(instance, Database.getResult(rs, tempField.getType(), tempField.getName()));
+                        }
+                    }
+                }
+            }
+        } catch (SQLException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            System.err.println("Error: " + e);
+        }
+        return instance;
+    }
 
     public static <M extends Model> List<M> all(Supplier<M> constructor) {
         M instance = constructor.get();
         List<M> models = new ArrayList<>();
-        Method[] allMethods = instance.getClass().getDeclaredMethods();
-        List<Method> methods = new ArrayList<>();
-        List<Field> fields = ObjectUtility.getFields(allMethods, instance);
+        Method[] methods = instance.getClass().getDeclaredMethods();
+        List<Method> setters = new ArrayList<>();
+        List<Field> fields = ObjectUtility.getFields(methods, instance);
 
-        for (Method m1 : allMethods) {
-            if (m1.getName().contains("set")) {
-                methods.add(m1);
+        for (Method m : methods) {
+            if (m.getName().contains("set")) {
+                setters.add(m);
             }
         }
         String sql = "SELECT * FROM `" + ObjectUtility.tableOf(instance) + "`";
@@ -164,8 +194,8 @@ public abstract class Model {
             while (rs.next()) {
                 M model = constructor.get();
 
-                for (int i = 0; i < methods.size(); i++) {
-                    Method tempMethod = methods.get(i);
+                for (int i = 0; i < setters.size(); i++) {
+                    Method tempMethod = setters.get(i);
                     for (int j = 0; j < fields.size(); j++) {
                         Field tempField = fields.get(j);
                         if (tempMethod.getName().toLowerCase().contains(tempField.getName())) {
