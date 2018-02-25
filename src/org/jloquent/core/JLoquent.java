@@ -24,7 +24,6 @@
 package org.jloquent.core;
 
 import java.sql.SQLException;
-import java.util.List;
 import org.jloquent.usage.Person;
 
 /**
@@ -35,21 +34,26 @@ import org.jloquent.usage.Person;
 public class JLoquent {
 
     public static void main(String[] args) throws SQLException {
-        /*Person p = new Person();
-        p.setId(2);
-        p.setName("Luke Henrry");
-        p.setAddress("Journey Ave");
-        p.setZipcode("23938");
-        p.setSex('m');*/
-        List<Person> persons = Person.all(Person::new);
+        Person p = new Person();
+        p.setId(1);
+        p.setName("Steve Wand");
+        p.setAddress("Vespucci St");
+        p.setZipcode("654421");
+        p.setSex('m');
+        
+        Person person = Person.find(3, Person::new);
+        
+        System.out.println(person.getName());
+        //p.delete();
+        /*List<Person> persons = Person.all(Person::new);
 
-        for (Person p : persons) {
-            System.out.println(p.getId() + ", "
-                    + p.getName() + ", "
-                    + p.getAddress() + ", "
-                    + p.getZipcode() + ", "
-                    + p.getSex());
-        }
+        for (Person person : persons) {
+            System.out.println(person.getId() + ", "
+                    + person.getName() + ", "
+                    + person.getAddress() + ", "
+                    + person.getZipcode() + ", "
+                    + person.getSex());
+        }*/
         
     }
 }
