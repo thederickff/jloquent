@@ -23,8 +23,13 @@
  */
 package org.jloquent.core;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import org.jloquent.database.Database;
 import org.jloquent.util.ObjectUtility;
 
@@ -35,51 +40,146 @@ import org.jloquent.util.ObjectUtility;
  */
 public abstract class Model {
 
+    /**
+     * Creates a new entity into a table with the same name of a model child but
+     * in plural, e.g. a model <code>class Person extends Model</code> will have
+     * all of its fields persisted into a table called <code>persons</code>.
+     */
     public void create() {
-        String className = this.getClass().getName();
         Method[] mt = this.getClass().getDeclaredMethods();
         List<Field> fields = ObjectUtility.getFields(mt, this);
-        
-        String sql = "INSERT INTO `" + ObjectUtility.getTableName(className) + "` (";
+
+        String sql = "INSERT INTO `" + ObjectUtility.tableOf(this) + "` (";
         for (int i = 0; i < fields.size(); i++) {
             Field field = fields.get(i);
-            
+
             sql += ("`" + field.getName() + "`");
-            
+
             if ((i + 1) != fields.size()) {
                 sql += ", ";
             }
         }
-        
+
         sql += ") VALUES (";
         for (int i = 0; i < fields.size(); i++) {
             Field field = fields.get(i);
-            
-            sql += ("'" + field.getValue()+ "'");
-            
+
+            sql += ("'" + field.getValue() + "'");
+
             if ((i + 1) != fields.size()) {
                 sql += ", ";
             }
         }
-        
+
         sql += ")";
-        
+
         Database.execute(sql);
     }
 
+    /**
+     * Updates an entity in a table with the same name of a model child but in
+     * plural, e.g. a model <code>class Person extends Model</code> will have
+     * all of its fields updated, in a table called <code>persons</code>.
+     */
     public void update() {
+        Method[] mt = this.getClass().getDeclaredMethods();
+        List<Field> fields = ObjectUtility.getFields(mt, this);
+        Object id = null;
 
+        String sql = "UPDATE `" + ObjectUtility.tableOf(this) + "` SET ";
+        for (int i = 0; i < fields.size(); i++) {
+            Field field = fields.get(i);
+            if (!field.getName().equals("id")) {
+                sql += "`" + field.getName() + "` = '" + field.getValue() + "'";
+
+                if ((i + 1) != fields.size()) {
+                    sql += ", ";
+                }
+            } else {
+                id = field.getValue();
+            }
+        }
+
+        if (id == null) {
+            System.out.println("id cannot be null");
+            return;
+        }
+
+        sql += " WHERE `id` = " + id;
+
+        Database.execute(sql);
     }
 
     public void delete() {
+        Method[] mt = this.getClass().getDeclaredMethods();
+        List<Field> fields = ObjectUtility.getFields(mt, this);
+        Object id = null;
+        String sql = "DELETE FROM `" + ObjectUtility.tableOf(this) + "`";
 
+        for (Field f : fields) {
+            if (f.getName().equals("id")) {
+                id = f.getValue();
+                break;
+            }
+        }
+
+        if (id == null) {
+            System.err.println("id cannot be null");
+            return;
+        }
+
+        sql += " WHERE `id` = " + id;
+
+        Database.execute(sql);
     }
 
-    public Model find(int id) {
-        return this;
+    public void find(int id) {
+        throw new UnsupportedOperationException();
     }
 
-    public void all() {
-
+    public static void create(Model model) {
+        model.create();
     }
+
+    public static void update(Model model) {
+        model.update();
+    }
+
+    public static <M extends Model> List<M> all(Supplier<M> constructor) {
+        M instance = constructor.get();
+        List<M> models = new ArrayList<>();
+        Method[] allMethods = instance.getClass().getDeclaredMethods();
+        List<Method> methods = new ArrayList<>();
+        List<Field> fields = ObjectUtility.getFields(allMethods, instance);
+
+        for (Method m1 : allMethods) {
+            if (m1.getName().contains("set")) {
+                methods.add(m1);
+            }
+        }
+        String sql = "SELECT * FROM `" + ObjectUtility.tableOf(instance) + "`";
+        try {
+            ResultSet rs = Database.executeQuery(sql);
+
+            while (rs.next()) {
+                M model = constructor.get();
+
+                for (int i = 0; i < methods.size(); i++) {
+                    Method tempMethod = methods.get(i);
+                    for (int j = 0; j < fields.size(); j++) {
+                        Field tempField = fields.get(j);
+                        if (tempMethod.getName().toLowerCase().contains(tempField.getName())) {
+                            tempMethod.invoke(model, Database.getResult(rs, tempField.getType(), tempField.getName()));
+                        }
+                    }
+                }
+                models.add(model);
+            }
+        } catch (SQLException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            System.err.println("Error: " + e);
+        }
+
+        return models;
+    }
+    
 }

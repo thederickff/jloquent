@@ -23,6 +23,8 @@
  */
 package org.jloquent.core;
 
+import java.sql.SQLException;
+import java.util.List;
 import org.jloquent.usage.Person;
 
 /**
@@ -32,26 +34,22 @@ import org.jloquent.usage.Person;
  */
 public class JLoquent {
 
-    public static void main(String[] args) {
-        Person p = new Person();
+    public static void main(String[] args) throws SQLException {
+        /*Person p = new Person();
         p.setId(2);
         p.setName("Luke Henrry");
         p.setAddress("Journey Ave");
         p.setZipcode("23938");
-        p.setSex('m');
-        p.create();        
+        p.setSex('m');*/
+        List<Person> persons = Person.all(Person::new);
+
+        for (Person p : persons) {
+            System.out.println(p.getId() + ", "
+                    + p.getName() + ", "
+                    + p.getAddress() + ", "
+                    + p.getZipcode() + ", "
+                    + p.getSex());
+        }
         
-        //Database.open();
-        /*String sql = "CREATE TABLE `persons` ("
-                + "`id` int(10) UNSIGNED NOT NULL,"
-                + "`name` varchar(255) NOT NULL,"
-                + "`address` varchar(255) DEFAULT NULL,"
-                + "`zipcode` varchar(255) NOT NULL,"
-                + "`sex` varchar(6) NOT NULL"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=latin1;";
-         */
-        //ALTER TABLE `persons`
-        //ADD PRIMARY KEY (`id`);
-        //Database.execute(sql);
     }
 }
