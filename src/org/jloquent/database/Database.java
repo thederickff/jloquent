@@ -68,8 +68,9 @@ public class Database {
     }
     public static ResultSet executeQuery(String sql) {
         Database.open();
-        try (Statement statement = connection.createStatement();
-                ResultSet resultSet = statement.executeQuery(sql)) {    
+        try {    
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
             
             return resultSet;
         } catch (SQLException e) {
@@ -89,4 +90,22 @@ public class Database {
             System.err.println("Failed to close connection: " + e);
         }
     }   
+    
+    public static Object getResult(ResultSet rs, String type, String column) throws SQLException {
+        switch (type) {
+            case "int":
+                return rs.getInt(column);
+            case "double":
+                return rs.getDouble(column);
+            case "boolean":
+                return rs.getBoolean(column);
+            case "Array":
+                return rs.getArray(column);
+            case "char":
+                return rs.getString(column).charAt(0);
+            case "String":
+                return rs.getString(column);
+        }
+        return null;
+    }
 }
