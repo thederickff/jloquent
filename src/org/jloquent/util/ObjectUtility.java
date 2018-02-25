@@ -36,10 +36,8 @@ import org.jloquent.core.Field;
  */
 public class ObjectUtility {
 
-    public static String getTableName(String className) {
-        String[] tokens = className.split("\\.");
-        String tablename = tokens[tokens.length-1].toLowerCase() + "s";
-        return tablename;
+    public static String tableOf(Object obj) {
+        return obj.getClass().getSimpleName().toLowerCase() + "s";
     }
     
     /**
@@ -56,8 +54,8 @@ public class ObjectUtility {
                 if (methods[i].getName().contains("get")) {
                     String name = toFieldName(methods[i].getName());
                     Object value = methods[i].invoke(invoker, (Object[]) null);
-
-                    fields.add(new Field(name, value));
+                    Class<?> type = methods[i].getReturnType();
+                    fields.add(new Field(name, value, type.getSimpleName()));
                 }
             }
         } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
@@ -66,7 +64,7 @@ public class ObjectUtility {
 
         return fields;
     }
-
+    
     /**
      * Removes the 'get' prefix of string and set its first character to lower
      * case, for example a string with <code>getAddress</code> as its value will
