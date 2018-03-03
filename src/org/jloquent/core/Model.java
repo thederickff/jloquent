@@ -49,7 +49,7 @@ public abstract class Model {
      */
     public void save() {
         Method[] mt = this.getClass().getDeclaredMethods();
-        List<Field> fields = ObjectUtility.getFields(mt, this);
+        List<Field> fields = ObjectUtility.getFields(mt, this, false);
 
         String sql = "INSERT INTO `" + ObjectUtility.tableOf(this) + "` (";
         for (int i = 0; i < fields.size(); i++) {
@@ -75,7 +75,7 @@ public abstract class Model {
 
         sql += ")";
 
-        //Database.execute(sql);
+        Database.execute(sql);
         System.out.println(sql);
     }
 
@@ -86,7 +86,7 @@ public abstract class Model {
      */
     public void update() {
         Method[] mt = this.getClass().getDeclaredMethods();
-        List<Field> fields = ObjectUtility.getFields(mt, this);
+        List<Field> fields = ObjectUtility.getFields(mt, this, false);
         Object id = null;
 
         String sql = "UPDATE `" + ObjectUtility.tableOf(this) + "` SET ";
@@ -111,11 +111,12 @@ public abstract class Model {
         sql += " WHERE `id` = " + id;
 
         Database.execute(sql);
+        System.out.println(sql);
     }
 
     public void delete() {
         Method[] mt = this.getClass().getDeclaredMethods();
-        List<Field> fields = ObjectUtility.getFields(mt, this);
+        List<Field> fields = ObjectUtility.getFields(mt, this, false);
         Object id = null;
         String sql = "DELETE FROM `" + ObjectUtility.tableOf(this) + "`";
 
@@ -134,6 +135,7 @@ public abstract class Model {
         sql += " WHERE `id` = " + id;
 
         Database.execute(sql);
+        System.out.println(sql);
     }
 
     public static void create(Model model) {
@@ -148,7 +150,7 @@ public abstract class Model {
         M instance = constructor.get();
         Method[] methods = instance.getClass().getDeclaredMethods();
         List<Method> setters = new ArrayList<>();
-        List<Field> fields = ObjectUtility.getFields(methods, instance);
+        List<Field> fields = ObjectUtility.getFields(methods, instance, true);
 
         for (Method m : methods) {
             if (m.getName().contains("set")) {
@@ -156,7 +158,7 @@ public abstract class Model {
             }
         }
 
-        String sql = "SELECT * FROM `" + ObjectUtility.tableOf(instance) + "` where `id` =" + id;
+        String sql = "SELECT * FROM `" + ObjectUtility.tableOf(instance) + "` where `id` = " + id;
 
         try {
             ResultSet rs = Database.executeQuery(sql);
@@ -175,6 +177,8 @@ public abstract class Model {
         } catch (SQLException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, "Failed execute query", e);
         }
+        System.out.println(sql);
+        
         return instance;
     }
 
@@ -183,7 +187,7 @@ public abstract class Model {
         List<M> models = new ArrayList<>();
         Method[] methods = instance.getClass().getDeclaredMethods();
         List<Method> setters = new ArrayList<>();
-        List<Field> fields = ObjectUtility.getFields(methods, instance);
+        List<Field> fields = ObjectUtility.getFields(methods, instance, true);
 
         for (Method m : methods) {
             if (m.getName().contains("set")) {
@@ -211,6 +215,7 @@ public abstract class Model {
         } catch (SQLException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, "Failed to execute query", e);
         }
+        System.out.println(sql);
 
         return models;
     }

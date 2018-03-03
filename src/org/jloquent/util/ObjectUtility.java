@@ -41,15 +41,17 @@ public class ObjectUtility {
     public static String tableOf(Object obj) {
         return obj.getClass().getSimpleName().toLowerCase() + "s";
     }
-    
+
     /**
      * Gets a list of fields containing a name and its value
      *
      * @param methods a array of methods of a object
      * @param invoker the object that is invoking each method
+     * @param request whether it is request mode or not, if false, id field and
+     * fields with null values will not be included
      * @return a list of fields
      */
-    public static List<Field> getFields(Method[] methods, Object invoker) {
+    public static List<Field> getFields(Method[] methods, Object invoker, boolean request) {
         List<Field> fields = new ArrayList<>();
         try {
             for (int i = methods.length - 1; i >= 0; i--) {
@@ -57,7 +59,10 @@ public class ObjectUtility {
                     String name = toFieldName(methods[i].getName());
                     Object value = methods[i].invoke(invoker, (Object[]) null);
                     Class<?> type = methods[i].getReturnType();
-                    fields.add(new Field(name, value, type.getSimpleName()));
+                    
+                    if (request || (!name.contains("id") && value != null)) {
+                        fields.add(new Field(name, value, type.getSimpleName()));
+                    }
                 }
             }
         } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
@@ -66,7 +71,7 @@ public class ObjectUtility {
 
         return fields;
     }
-    
+
     /**
      * Removes the 'get' prefix of string and set its first character to lower
      * case, for example a string with <code>getAddress</code> as its value will
