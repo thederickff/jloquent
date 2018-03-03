@@ -95,15 +95,19 @@ public class Database {
     public static Object getResult(ResultSet rs, String type, String column) throws SQLException {
         switch (type) {
             case "int":
+            case "Integer":
                 return rs.getInt(column);
             case "double":
+            case "Double":
                 return rs.getDouble(column);
             case "boolean":
+            case "Boolean":
                 return rs.getBoolean(column);
+            case "char":
+            case "Character":
+                return rs.getString(column).charAt(0);
             case "Array":
                 return rs.getArray(column);
-            case "char":
-                return rs.getString(column).charAt(0);
             case "String":
                 return rs.getString(column);
         }
