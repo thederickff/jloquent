@@ -75,7 +75,7 @@ public abstract class Model {
 
         sql += ")";
 
-        Database.execute(sql);
+        Connector.execute(sql);
         System.out.println(sql);
     }
 
@@ -106,7 +106,7 @@ public abstract class Model {
 
         sql += " WHERE `id` = " + id;
 
-        Database.execute(sql);
+        Connector.execute(sql);
         System.out.println(sql);
     }
 
@@ -120,7 +120,7 @@ public abstract class Model {
 
         sql += " WHERE `id` = " + id;
 
-        Database.execute(sql);
+        Connector.execute(sql);
         System.out.println(sql);
     }
 
@@ -147,7 +147,7 @@ public abstract class Model {
         String sql = "SELECT * FROM `" + ObjectUtility.tableOf(instance) + "` where `id` = " + id;
 
         try {
-            ResultSet rs = Database.executeQuery(sql);
+            ResultSet rs = Connector.executeQuery(sql);
 
             while (rs.next()) {
                 instance.setId(id);
@@ -156,7 +156,7 @@ public abstract class Model {
                     for (int j = 0; j < fields.size(); j++) {
                         Field tempField = fields.get(j);
                         if (tempMethod.getName().toLowerCase().contains(tempField.getName())) {
-                            tempMethod.invoke(instance, Database.getResult(rs, tempField.getType(), tempField.getName()));
+                            tempMethod.invoke(instance, Connector.getResult(rs, tempField.getType(), tempField.getName()));
                         }
                     }
                 }
@@ -185,7 +185,7 @@ public abstract class Model {
 
         String sql = "SELECT * FROM `" + ObjectUtility.tableOf(instance) + "`";
         try {
-            ResultSet rs = Database.executeQuery(sql);
+            ResultSet rs = Connector.executeQuery(sql);
 
             while (rs.next()) {
                 M model = constructor.get();
@@ -196,7 +196,7 @@ public abstract class Model {
                     for (int j = 0; j < fields.size(); j++) {
                         Field tempField = fields.get(j);
                         if (tempMethod.getName().toLowerCase().contains(tempField.getName())) {
-                            tempMethod.invoke(model, Database.getResult(rs, tempField.getType(), tempField.getName()));
+                            tempMethod.invoke(model, Connector.getResult(rs, tempField.getType(), tempField.getName()));
                         }
                     }
                 }

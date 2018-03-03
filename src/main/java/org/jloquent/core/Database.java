@@ -24,93 +24,68 @@
 
 package org.jloquent.core;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  *
  * @author derickfelix
- * @date Feb 24, 2018
+ * @date Mar 3, 2018
  */
 public class Database {
+
+    static String jdbc_driver = "com.mysql.jdbc.Driver";
+    static String type = "jdbc:mysql://";
     
-    private static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/jloquent";
-    private static final String USERNAME = "root";
-    private static final String PASSWORD = "admin";
-    private static Connection connection;
+    /**
+     * Database's host, <code>localhost</code> is set by default.
+     */
+    public static String host = "localhost";
     
-    public static Connection open() {
-        try {
-            
-            Class.forName(JDBC_DRIVER);
-            connection = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
-                
-        } catch (ClassNotFoundException | SQLException e) {
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, "Failed to open connection", e);
+    /**
+     * Database's port, <code>3306</code> is set  by default.
+     */
+    public static String port = "3306";
+    
+    /**
+     * Database's name, <code>homestead</code> is set  by default.
+     */
+    public static String name = "homestead";
+    
+    /**
+     * Database's username, <code>homestead</code> is set  by default.
+     */
+    public static String username = "homestead";
+    
+    /**
+     * Database's password, empty is set by default.
+     */
+    public static String password = "";
+
+    /**
+     * A constant that represents a <code>MYSQL</code> database.
+     */
+    public static final int MYSQL_DB = 0;
+    /**
+     * A constant that represents a <code>POSTGRESQL</code> database.
+     */
+    public static final int POSTGRES_DB = 1;
+
+    /**
+     * Sets the database type that will be used
+     * 
+     * @param dbType an integer representing the type of a database.
+     */
+    public static void setDatabaseType(int dbType) {
+        switch (dbType) {
+            case MYSQL_DB:
+                jdbc_driver = "com.mysql.jdbc.Driver";
+                type = "jdbc:mysql://";
+                break;
+            case POSTGRES_DB:
+                jdbc_driver = "org.postgres.jdbc.Driver";
+                type = "jdbc:postgres://";
+                break;
+            default:
+                System.out.println("unknown database type");
         }
-        
-        return connection;
     }
-    
-    public static void execute(String sql) {
-        Database.open();
-        try (Statement statement = connection.createStatement()) {    
-            statement.execute(sql);
-        } catch (SQLException e) {
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, "Failed to execute statement", e);
-        }
-        Database.close();
-    }
-    public static ResultSet executeQuery(String sql) {
-        Database.open();
-        try {    
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
-            
-            return resultSet;
-        } catch (SQLException e) {            
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, "Failed to execute query", e);
-        }
-        Database.close();
-        
-        return null;
-    }
-    
-    public static void close() {
-        try {
-            if (connection != null) {
-                connection.close();
-            }
-        } catch(SQLException e) {
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, "Failed to close connection", e);
-        }
-    }   
-    
-    public static Object getResult(ResultSet rs, String type, String column) throws SQLException {
-        switch (type) {
-            case "int":
-            case "Integer":
-                return rs.getInt(column);
-            case "double":
-            case "Double":
-                return rs.getDouble(column);
-            case "boolean":
-            case "Boolean":
-                return rs.getBoolean(column);
-            case "char":
-            case "Character":
-                return rs.getString(column).charAt(0);
-            case "Array":
-                return rs.getArray(column);
-            case "String":
-                return rs.getString(column);
-        }
-        return null;
-    }
+
 }
