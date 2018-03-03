@@ -40,6 +40,8 @@ import java.util.logging.Logger;
  */
 public abstract class Model {
 
+    protected Integer id;
+
     /**
      * Creates a new entity into a table with the same name of a model child but
      * in plural, e.g. a model <code>class Person extends Model</code> will have
@@ -85,24 +87,20 @@ public abstract class Model {
     public void update() {
         Method[] mt = this.getClass().getDeclaredMethods();
         List<Field> fields = ObjectUtility.getFields(mt, this, false);
-        Object id = null;
 
         String sql = "UPDATE `" + ObjectUtility.tableOf(this) + "` SET ";
         for (int i = 0; i < fields.size(); i++) {
             Field field = fields.get(i);
-            if (!field.getName().equals("id")) {
-                sql += "`" + field.getName() + "` = '" + field.getValue() + "'";
+            
+            sql += "`" + field.getName() + "` = '" + field.getValue() + "'";
 
-                if ((i + 1) != fields.size()) {
-                    sql += ", ";
-                }
-            } else {
-                id = field.getValue();
+            if ((i + 1) != fields.size()) {
+                sql += ", ";
             }
         }
 
         if (id == null) {
-            System.out.println("id cannot be null");
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "id cannot be null");
             return;
         }
 
@@ -113,20 +111,10 @@ public abstract class Model {
     }
 
     public void delete() {
-        Method[] mt = this.getClass().getDeclaredMethods();
-        List<Field> fields = ObjectUtility.getFields(mt, this, false);
-        Object id = null;
         String sql = "DELETE FROM `" + ObjectUtility.tableOf(this) + "`";
 
-        for (Field f : fields) {
-            if (f.getName().equals("id")) {
-                id = f.getValue();
-                break;
-            }
-        }
-
         if (id == null) {
-            System.err.println("id cannot be null");
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "id cannot be null");
             return;
         }
 
@@ -162,6 +150,7 @@ public abstract class Model {
             ResultSet rs = Database.executeQuery(sql);
 
             while (rs.next()) {
+                instance.setId(id);
                 for (int i = 0; i < setters.size(); i++) {
                     Method tempMethod = setters.get(i);
                     for (int j = 0; j < fields.size(); j++) {
@@ -172,11 +161,12 @@ public abstract class Model {
                     }
                 }
             }
+
         } catch (SQLException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, "Failed execute query", e);
         }
         System.out.println(sql);
-        
+
         return instance;
     }
 
@@ -192,12 +182,14 @@ public abstract class Model {
                 setters.add(m);
             }
         }
+
         String sql = "SELECT * FROM `" + ObjectUtility.tableOf(instance) + "`";
         try {
             ResultSet rs = Database.executeQuery(sql);
 
             while (rs.next()) {
                 M model = constructor.get();
+                model.setId(rs.getInt("id"));
 
                 for (int i = 0; i < setters.size(); i++) {
                     Method tempMethod = setters.get(i);
@@ -216,6 +208,14 @@ public abstract class Model {
         System.out.println(sql);
 
         return models;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
 }

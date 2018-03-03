@@ -46,8 +46,8 @@ public class ObjectUtility {
      *
      * @param methods a array of methods of a object
      * @param invoker the object that is invoking each method
-     * @param request whether it is request mode or not, if false, id field and
-     * fields with null values will not be included
+     * @param request whether it is request mode or not, if false, fields with
+     * null values will not be included
      * @return a list of fields
      */
     public static List<Field> getFields(Method[] methods, Object invoker, boolean request) {
@@ -58,8 +58,8 @@ public class ObjectUtility {
                     String name = toFieldName(methods[i].getName());
                     Object value = methods[i].invoke(invoker, (Object[]) null);
                     Class<?> type = methods[i].getReturnType();
-                    
-                    if (request || (!name.contains("id") && value != null)) {
+
+                    if (request || value != null) {
                         fields.add(new Field(name, value, type.getSimpleName()));
                     }
                 }
