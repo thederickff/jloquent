@@ -30,6 +30,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jloquent.database.Database;
 import org.jloquent.util.ObjectUtility;
 
@@ -73,7 +75,8 @@ public abstract class Model {
 
         sql += ")";
 
-        Database.execute(sql);
+        //Database.execute(sql);
+        System.out.println(sql);
     }
 
     /**
@@ -140,21 +143,21 @@ public abstract class Model {
     public static void update(Model model) {
         model.update();
     }
-    
+
     public static <M extends Model> M find(int id, Supplier<M> constructor) {
         M instance = constructor.get();
         Method[] methods = instance.getClass().getDeclaredMethods();
         List<Method> setters = new ArrayList<>();
         List<Field> fields = ObjectUtility.getFields(methods, instance);
-        
+
         for (Method m : methods) {
             if (m.getName().contains("set")) {
                 setters.add(m);
             }
         }
-        
+
         String sql = "SELECT * FROM `" + ObjectUtility.tableOf(instance) + "` where `id` =" + id;
-        
+
         try {
             ResultSet rs = Database.executeQuery(sql);
 
@@ -170,7 +173,7 @@ public abstract class Model {
                 }
             }
         } catch (SQLException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            System.err.println("Error: " + e);
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, "Failed execute query", e);
         }
         return instance;
     }
@@ -206,10 +209,10 @@ public abstract class Model {
                 models.add(model);
             }
         } catch (SQLException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            System.err.println("Error: " + e);
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, "Failed to execute query", e);
         }
 
         return models;
     }
-    
+
 }

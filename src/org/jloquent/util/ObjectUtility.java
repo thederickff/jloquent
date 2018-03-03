@@ -27,6 +27,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jloquent.core.Field;
 
 /**
@@ -59,7 +61,7 @@ public class ObjectUtility {
                 }
             }
         } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-            System.err.println("Error while getting fields name:\n" + e);
+            Logger.getLogger(ObjectUtility.class.getName()).log(Level.SEVERE, "Failed to get name of fields", e);
         }
 
         return fields;
