@@ -37,15 +37,39 @@ import java.util.logging.Logger;
  * @date Feb 24, 2018
  */
 public class Connector {
-
+    
     private static Connection connection;
+    private static DBConfig config;
+    
+    private static String jdbc_driver;
+    private static String type;
+
+    public static void setDBConfig(DBConfig config) {
+        Connector.config = config;
+        setDatabaseType();
+    }
+
+    private static void setDatabaseType() {
+        switch (config.getDatabaseType()) {
+            case MYSQL:
+                jdbc_driver = "com.mysql.jdbc.Driver";
+                type = "jdbc:mysql://";
+                break;
+            case POSTGRES:
+                jdbc_driver = "org.postgres.jdbc.Driver";
+                type = "jdbc:postgres://";
+                break;
+            default:
+                System.err.println("An error have occurred");
+        }
+    }
 
     public static Connection open() {
         try {
 
-            Class.forName(Database.jdbc_driver);
-            String url = Database.type + Database.host + ":" + Database.port + "/" + Database.name;
-            connection = DriverManager.getConnection(url, Database.username, Database.password);
+            Class.forName(jdbc_driver);
+            String url = type + config.getHostName() + ":" + config.getPortNumber() + "/" + config.getDatabaseName();
+            connection = DriverManager.getConnection(url, config.getUsername(), config.getPassword());
 
         } catch (ClassNotFoundException | SQLException e) {
             Logger.getLogger(Connector.class.getName()).log(Level.SEVERE, "Failed to open connection", e);
