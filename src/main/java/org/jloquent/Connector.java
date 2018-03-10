@@ -132,8 +132,8 @@ public class Connector {
                 type = "jdbc:mysql://";
                 break;
             case POSTGRES:
-                jdbc_driver = "org.postgres.jdbc.Driver";
-                type = "jdbc:postgres://";
+                jdbc_driver = "org.postgresql.Driver";
+                type = "jdbc:postgresql://";
                 break;
             default:
                 System.err.println("An error have occurred");

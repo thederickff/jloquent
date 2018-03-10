@@ -40,7 +40,7 @@ import java.util.logging.Logger;
  */
 public abstract class Model {
 
-    protected Integer id;
+    private Integer id;
 
     /**
      * Creates a new entity into a table with the same name of a model child but
