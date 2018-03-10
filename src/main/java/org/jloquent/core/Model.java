@@ -50,6 +50,7 @@ public abstract class Model {
     public void save() {
         Method[] mt = this.getClass().getDeclaredMethods();
         List<Field> fields = ObjectUtility.getFields(mt, this, false);
+        Connector connector = Connector.getInstance();
 
         String sql = "INSERT INTO `" + ObjectUtility.tableOf(this) + "` (";
         for (int i = 0; i < fields.size(); i++) {
@@ -75,7 +76,7 @@ public abstract class Model {
 
         sql += ")";
 
-        Connector.execute(sql);
+        connector.execute(sql);
         System.out.println(sql);
     }
 
@@ -87,6 +88,7 @@ public abstract class Model {
     public void update() {
         Method[] mt = this.getClass().getDeclaredMethods();
         List<Field> fields = ObjectUtility.getFields(mt, this, false);
+        Connector connector = Connector.getInstance();
 
         String sql = "UPDATE `" + ObjectUtility.tableOf(this) + "` SET ";
         for (int i = 0; i < fields.size(); i++) {
@@ -106,12 +108,13 @@ public abstract class Model {
 
         sql += " WHERE `id` = " + id;
 
-        Connector.execute(sql);
+        connector.execute(sql);
         System.out.println(sql);
     }
 
     public void delete() {
         String sql = "DELETE FROM `" + ObjectUtility.tableOf(this) + "`";
+        Connector connector = Connector.getInstance();
 
         if (id == null) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, "id cannot be null");
@@ -120,7 +123,7 @@ public abstract class Model {
 
         sql += " WHERE `id` = " + id;
 
-        Connector.execute(sql);
+        connector.execute(sql);
         System.out.println(sql);
     }
 
@@ -137,6 +140,7 @@ public abstract class Model {
         Method[] methods = instance.getClass().getDeclaredMethods();
         List<Method> setters = new ArrayList<>();
         List<Field> fields = ObjectUtility.getFields(methods, instance, true);
+        Connector connector = Connector.getInstance();
 
         for (Method m : methods) {
             if (m.getName().contains("set")) {
@@ -147,7 +151,7 @@ public abstract class Model {
         String sql = "SELECT * FROM `" + ObjectUtility.tableOf(instance) + "` where `id` = " + id;
 
         try {
-            ResultSet rs = Connector.executeQuery(sql);
+            ResultSet rs = connector.executeQuery(sql);
 
             while (rs.next()) {
                 instance.setId(id);
@@ -156,7 +160,7 @@ public abstract class Model {
                     for (int j = 0; j < fields.size(); j++) {
                         Field tempField = fields.get(j);
                         if (tempMethod.getName().toLowerCase().contains(tempField.getName())) {
-                            tempMethod.invoke(instance, Connector.getResult(rs, tempField.getType(), tempField.getName()));
+                            tempMethod.invoke(instance, connector.getResult(rs, tempField.getType(), tempField.getName()));
                         }
                     }
                 }
@@ -176,6 +180,7 @@ public abstract class Model {
         Method[] methods = instance.getClass().getDeclaredMethods();
         List<Method> setters = new ArrayList<>();
         List<Field> fields = ObjectUtility.getFields(methods, instance, true);
+        Connector connector = Connector.getInstance();
 
         for (Method m : methods) {
             if (m.getName().contains("set")) {
@@ -185,7 +190,7 @@ public abstract class Model {
 
         String sql = "SELECT * FROM `" + ObjectUtility.tableOf(instance) + "`";
         try {
-            ResultSet rs = Connector.executeQuery(sql);
+            ResultSet rs = connector.executeQuery(sql);
 
             while (rs.next()) {
                 M model = constructor.get();
@@ -196,7 +201,7 @@ public abstract class Model {
                     for (int j = 0; j < fields.size(); j++) {
                         Field tempField = fields.get(j);
                         if (tempMethod.getName().toLowerCase().contains(tempField.getName())) {
-                            tempMethod.invoke(model, Connector.getResult(rs, tempField.getType(), tempField.getName()));
+                            tempMethod.invoke(model, connector.getResult(rs, tempField.getType(), tempField.getName()));
                         }
                     }
                 }

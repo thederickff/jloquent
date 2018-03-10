@@ -38,18 +38,19 @@ import java.util.logging.Logger;
  */
 public class Connector {
     
-    private static Connection connection;
-    private static DBConfig config;
+    private static Connector connector;
+    private Connection connection;
+    private DBConfig config;
     
-    private static String jdbc_driver;
-    private static String type;
+    private String jdbc_driver;
+    private String type;
 
-    public static void setDBConfig(DBConfig config) {
-        Connector.config = config;
+    public void setDBConfig(DBConfig config) {
+        this.config = config;
         setDatabaseType();
     }
 
-    private static void setDatabaseType() {
+    private void setDatabaseType() {
         switch (config.getDatabaseType()) {
             case MYSQL:
                 jdbc_driver = "com.mysql.jdbc.Driver";
@@ -64,7 +65,7 @@ public class Connector {
         }
     }
 
-    public static Connection open() {
+    public Connection open() {
         try {
 
             Class.forName(jdbc_driver);
@@ -72,38 +73,38 @@ public class Connector {
             connection = DriverManager.getConnection(url, config.getUsername(), config.getPassword());
 
         } catch (ClassNotFoundException | SQLException e) {
-            Logger.getLogger(Connector.class.getName()).log(Level.SEVERE, "Failed to open connection", e);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to open connection", e);
         }
 
         return connection;
     }
 
-    public static void execute(String sql) {
-        Connector.open();
+    public void execute(String sql) {
+        open();
         try (Statement statement = connection.createStatement()) {
             statement.execute(sql);
         } catch (SQLException e) {
-            Logger.getLogger(Connector.class.getName()).log(Level.SEVERE, "Failed to execute statement", e);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to execute statement", e);
         }
-        Connector.close();
+        close();
     }
 
-    public static ResultSet executeQuery(String sql) {
-        Connector.open();
+    public ResultSet executeQuery(String sql) {
+        open();
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
 
             return resultSet;
         } catch (SQLException e) {
-            Logger.getLogger(Connector.class.getName()).log(Level.SEVERE, "Failed to execute query", e);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to execute query", e);
         }
-        Connector.close();
+        close();
 
         return null;
     }
 
-    public static void close() {
+    public void close() {
         try {
             if (connection != null) {
                 connection.close();
@@ -113,7 +114,7 @@ public class Connector {
         }
     }
 
-    public static Object getResult(ResultSet rs, String type, String column) throws SQLException {
+    public Object getResult(ResultSet rs, String type, String column) throws SQLException {
         switch (type) {
             case "int":
             case "Integer":
@@ -133,5 +134,13 @@ public class Connector {
                 return rs.getString(column);
         }
         return null;
+    }
+    
+    public final static Connector getInstance() {
+        if (connector == null) {
+            connector = new Connector();
+        }
+        
+        return connector;
     }
 }
