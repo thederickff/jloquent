@@ -21,25 +21,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jloquent.core;
+
+package org.jloquent;
 
 /**
  *
  * @author derickfelix
- * @date Mar 4, 2018
+ * @date Feb 24, 2018
  */
-public interface DBConfig {
+public class Field {
+    
+    private String name;
+    private Object value;
+    private String type;
+    
+    public Field() {
+    }
 
-    public DatabaseType getDatabaseType();
+    public Field(String name, Object value, String type) {
+        this.name = name;
+        this.value = value;
+        this.type = type;
+    }
+    
+    public String getName() {
+        return name;
+    }
 
-    public String getHostName();
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public String getPortNumber();
+    public Object getValue() {
+        return value;
+    }
 
-    public String getDatabaseName();
+    public void setValue(Object value) {
+        this.value = value;
+    }
 
-    public String getUsername();
+    public String getType() {
+        return type;
+    }
 
-    public String getPassword();
-
+    public void setType(String type) {
+        this.type = type;
+    }
+    
 }

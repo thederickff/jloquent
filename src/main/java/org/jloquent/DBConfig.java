@@ -21,14 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-package org.jloquent.core;
+package org.jloquent;
 
 /**
  *
  * @author derickfelix
  * @date Mar 4, 2018
  */
-public enum DatabaseType {
-    MYSQL, POSTGRES;  
+public interface DBConfig {
+
+    public DatabaseType getDatabaseType();
+
+    public String getHostName();
+
+    public String getPortNumber();
+
+    public String getDatabaseName();
+
+    public String getUsername();
+
+    public String getPassword();
+
 }

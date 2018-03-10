@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jloquent.core;
+package org.jloquent;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -44,26 +44,6 @@ public class Connector {
     
     private String jdbc_driver;
     private String type;
-
-    public void setDBConfig(DBConfig config) {
-        this.config = config;
-        setDatabaseType();
-    }
-
-    private void setDatabaseType() {
-        switch (config.getDatabaseType()) {
-            case MYSQL:
-                jdbc_driver = "com.mysql.jdbc.Driver";
-                type = "jdbc:mysql://";
-                break;
-            case POSTGRES:
-                jdbc_driver = "org.postgres.jdbc.Driver";
-                type = "jdbc:postgres://";
-                break;
-            default:
-                System.err.println("An error have occurred");
-        }
-    }
 
     public Connection open() {
         try {
@@ -134,6 +114,30 @@ public class Connector {
                 return rs.getString(column);
         }
         return null;
+    }
+    
+    public void setDBConfig(DBConfig config) {
+        this.config = config;
+        setDatabaseType();
+    }
+    
+    public DBConfig getDBConfig() {
+        return config;
+    }
+    
+    private void setDatabaseType() {
+        switch (config.getDatabaseType()) {
+            case MYSQL:
+                jdbc_driver = "com.mysql.jdbc.Driver";
+                type = "jdbc:mysql://";
+                break;
+            case POSTGRES:
+                jdbc_driver = "org.postgres.jdbc.Driver";
+                type = "jdbc:postgres://";
+                break;
+            default:
+                System.err.println("An error have occurred");
+        }
     }
     
     public final static Connector getInstance() {

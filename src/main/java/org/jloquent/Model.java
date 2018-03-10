@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jloquent.core;
+package org.jloquent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -49,10 +49,10 @@ public abstract class Model {
      */
     public void save() {
         Method[] mt = this.getClass().getDeclaredMethods();
-        List<Field> fields = ObjectUtility.getFields(mt, this, false);
+        List<Field> fields = Utility.getFields(mt, this, false);
         Connector connector = Connector.getInstance();
 
-        String sql = "INSERT INTO `" + ObjectUtility.tableOf(this) + "` (";
+        String sql = "INSERT INTO `" + Utility.tableOf(this) + "` (";
         for (int i = 0; i < fields.size(); i++) {
             Field field = fields.get(i);
 
@@ -87,10 +87,10 @@ public abstract class Model {
      */
     public void update() {
         Method[] mt = this.getClass().getDeclaredMethods();
-        List<Field> fields = ObjectUtility.getFields(mt, this, false);
+        List<Field> fields = Utility.getFields(mt, this, false);
         Connector connector = Connector.getInstance();
 
-        String sql = "UPDATE `" + ObjectUtility.tableOf(this) + "` SET ";
+        String sql = "UPDATE `" + Utility.tableOf(this) + "` SET ";
         for (int i = 0; i < fields.size(); i++) {
             Field field = fields.get(i);
             
@@ -113,7 +113,7 @@ public abstract class Model {
     }
 
     public void delete() {
-        String sql = "DELETE FROM `" + ObjectUtility.tableOf(this) + "`";
+        String sql = "DELETE FROM `" + Utility.tableOf(this) + "`";
         Connector connector = Connector.getInstance();
 
         if (id == null) {
@@ -139,7 +139,7 @@ public abstract class Model {
         M instance = constructor.get();
         Method[] methods = instance.getClass().getDeclaredMethods();
         List<Method> setters = new ArrayList<>();
-        List<Field> fields = ObjectUtility.getFields(methods, instance, true);
+        List<Field> fields = Utility.getFields(methods, instance, true);
         Connector connector = Connector.getInstance();
 
         for (Method m : methods) {
@@ -148,7 +148,7 @@ public abstract class Model {
             }
         }
 
-        String sql = "SELECT * FROM `" + ObjectUtility.tableOf(instance) + "` where `id` = " + id;
+        String sql = "SELECT * FROM `" + Utility.tableOf(instance) + "` where `id` = " + id;
 
         try {
             ResultSet rs = connector.executeQuery(sql);
@@ -179,7 +179,7 @@ public abstract class Model {
         List<M> models = new ArrayList<>();
         Method[] methods = instance.getClass().getDeclaredMethods();
         List<Method> setters = new ArrayList<>();
-        List<Field> fields = ObjectUtility.getFields(methods, instance, true);
+        List<Field> fields = Utility.getFields(methods, instance, true);
         Connector connector = Connector.getInstance();
 
         for (Method m : methods) {
@@ -188,7 +188,7 @@ public abstract class Model {
             }
         }
 
-        String sql = "SELECT * FROM `" + ObjectUtility.tableOf(instance) + "`";
+        String sql = "SELECT * FROM `" + Utility.tableOf(instance) + "`";
         try {
             ResultSet rs = connector.executeQuery(sql);
 

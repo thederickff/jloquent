@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jloquent.core;
+package org.jloquent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  * @author derickfelix
  * @date Feb 24, 2018
  */
-public class ObjectUtility {
+public class Utility {
 
     public static String tableOf(Object obj) {
         return obj.getClass().getSimpleName().toLowerCase() + "s";
@@ -65,7 +65,7 @@ public class ObjectUtility {
                 }
             }
         } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-            Logger.getLogger(ObjectUtility.class.getName()).log(Level.SEVERE, "Failed to get name of fields", e);
+            Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, "Failed to get name of fields", e);
         }
 
         return fields;
