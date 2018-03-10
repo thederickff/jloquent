@@ -52,13 +52,13 @@ public abstract class Model {
         List<Field> fields = Utility.getFields(mt, this, false);
         Connector connector = Connector.getInstance();
 
-        String sql = "INSERT INTO `" + Utility.tableOf(this) + "` (";
+        String sql = "INSERT INTO " + Utility.tableOf(this) + " (";
         for (int i = 0; i < fields.size(); i++) {
             Field field = fields.get(i);
 
-            sql += ("`" + field.getName() + "`");
+            sql += field.getName();
 
-            if ((i + 1) != fields.size()) {
+            if ((i + 1) < fields.size()) {
                 sql += ", ";
             }
         }
@@ -90,13 +90,13 @@ public abstract class Model {
         List<Field> fields = Utility.getFields(mt, this, false);
         Connector connector = Connector.getInstance();
 
-        String sql = "UPDATE `" + Utility.tableOf(this) + "` SET ";
+        String sql = "UPDATE " + Utility.tableOf(this) + " SET ";
         for (int i = 0; i < fields.size(); i++) {
             Field field = fields.get(i);
             
-            sql += "`" + field.getName() + "` = '" + field.getValue() + "'";
+            sql += field.getName() + " = '" + field.getValue() + "'";
 
-            if ((i + 1) != fields.size()) {
+            if ((i + 1) < fields.size()) {
                 sql += ", ";
             }
         }
@@ -106,14 +106,14 @@ public abstract class Model {
             return;
         }
 
-        sql += " WHERE `id` = " + id;
+        sql += " WHERE id = " + id;
 
         connector.execute(sql);
         System.out.println(sql);
     }
 
     public void delete() {
-        String sql = "DELETE FROM `" + Utility.tableOf(this) + "`";
+        String sql = "DELETE FROM " + Utility.tableOf(this);
         Connector connector = Connector.getInstance();
 
         if (id == null) {
@@ -121,7 +121,7 @@ public abstract class Model {
             return;
         }
 
-        sql += " WHERE `id` = " + id;
+        sql += " WHERE id = " + id;
 
         connector.execute(sql);
         System.out.println(sql);
@@ -148,7 +148,7 @@ public abstract class Model {
             }
         }
 
-        String sql = "SELECT * FROM `" + Utility.tableOf(instance) + "` where `id` = " + id;
+        String sql = "SELECT * FROM " + Utility.tableOf(instance) + " WHERE id = " + id;
 
         try {
             ResultSet rs = connector.executeQuery(sql);
@@ -188,7 +188,7 @@ public abstract class Model {
             }
         }
 
-        String sql = "SELECT * FROM `" + Utility.tableOf(instance) + "`";
+        String sql = "SELECT * FROM " + Utility.tableOf(instance);
         try {
             ResultSet rs = connector.executeQuery(sql);
 
