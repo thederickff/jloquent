@@ -1,0 +1,3 @@
+[submodule "3rdparty/jsqb"]
+	path = 3rdparty/jsqb
+	url = https://github.com/derickfelix/jsqb
